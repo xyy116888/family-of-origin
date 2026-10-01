@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>原生家庭性格印记评估</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg1:#F6F1EC;
+  --bg2:#EFE7EC;
+  --ink:#2B2430;
+  --ink-soft:#6B5F6E;
+  --rose:#B07C9E;
+  --rose-deep:#8E5A7E;
+  --gold:#C9A96E;
+  --card:#FFFFFF;
+  --line:#E8DFE3;
+  --shadow:0 10px 40px rgba(142,90,126,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:'Noto Sans SC',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  color:var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(176,124,158,.12), transparent 60%),
+    radial-gradient(900px 500px at 110% 20%, rgba(201,169,110,.10), transparent 60%),
+    linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+  min-height:100vh;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.serif{font-family:'Noto Serif SC',serif;}
+
+/* 容器：手机纵向卡片，居中 */
+.stage{
+  max-width:480px;
+  margin:0 auto;
+  min-height:100vh;
+  padding:28px 20px 48px;
+  display:flex;
+  flex-direction:column;
+}
+
+.view{display:none;animation:fadeIn .45s ease;}
+.view.active{display:flex;flex-direction:column;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* 卡片头 */
+.card-head{text-align:center;margin-bottom:28px;}
+.card-head .brand{
+  font-family:'Noto Serif SC',serif;
+  font-weight:900;
+  font-size:22px;
+  letter-spacing:1px;
+  color:var(--ink);
+}
+.card-head .sub{
+  margin-top:8px;
+  font-size:14px;
+  color:var(--ink-soft);
+  letter-spacing:2px;
+}
+.card-head .divider{
+  width:36px;height:2px;background:var(--rose);
+  margin:14px auto 0;border-radius:2px;
+}
+
+/* ===== 首页 ===== */
+.hero{
+  flex:1;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;
+  padding:20px 0;
+}
+.hero .ornament{
+  width:64px;height:64px;border-radius:50%;
+  background:linear-gradient(135deg,var(--rose),var(--gold));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:28px;margin-bottom:24px;
+  box-shadow:0 10px 30px rgba(176,124,158,.35);
+}
+.hero h1{
+  font-family:'Noto Serif SC',serif;
+  font-size:34px;font-weight:900;line-height:1.3;
+  letter-spacing:2px;
+}
+.hero h1 em{
+  font-style:normal;
+  background:linear-gradient(120deg,var(--rose-deep),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero .lead{
+  margin-top:18px;font-size:15px;color:var(--ink-soft);
+  max-width:320px;
+}
+.hero .meta{
+  margin-top:26px;display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
+}
+.hero .meta span{
+  font-size:12px;color:var(--rose-deep);
+  border:1px solid rgba(176,124,158,.35);
+  padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.6);
+}
+.btn-primary{
+  margin-top:36px;
+  width:100%;padding:16px;border:none;border-radius:16px;
+  background:linear-gradient(135deg,var(--rose-deep),var(--rose));
+  color:#fff;font-size:17px;font-weight:500;letter-spacing:2px;
+  cursor:pointer;box-shadow:0 12px 30px rgba(142,90,126,.35);
+  transition:transform .15s ease;
+}
+.btn-primary:active{transform:scale(.98);}
+.btn-ghost{
+  margin-top:12px;width:100%;padding:14px;border-radius:16px;
+  background:transparent;border:1px solid var(--line);
+  color:var(--ink-soft);font-size:14px;cursor:pointer;
+}
+.disclaimer{
+  margin-top:22px;font-size:11px;color:#A89BA0;line-height:1.6;
+}
+
+/* ===== 答题页 ===== */
+.quiz-card{
+  background:var(--card);
+  border-radius:24px;
+  padding:28px 22px;
+  box-shadow:var(--shadow);
+  flex:1;
+  display:flex;flex-direction:column;
+}
+.q-text{
+  font-size:20px;font-weight:700;line-height:1.5;
+  color:var(--ink);margin-bottom:22px;
+  font-family:'Noto Serif SC',serif;
+}
+.options{display:flex;flex-direction:column;gap:12px;}
+.opt{
+  text-align:left;
+  padding:16px 16px;border-radius:14px;
+  background:#FBF7F9;
+  border:1.5px solid var(--line);
+  font-size:16px;line-height:1.55;color:var(--ink);
+  cursor:pointer;transition:all .2s ease;
+}
+.opt .tag{
+  display:inline-block;width:22px;height:22px;border-radius:50%;
+  background:var(--line);color:var(--ink-soft);
+  text-align:center;line-height:22px;font-size:12px;margin-right:8px;
+  font-weight:700;
+}
+.opt:active{border-color:var(--rose);background:#F6ECF2;transform:scale(.99);}
+
+.quiz-footer{margin-top:auto;padding-top:22px;}
+.qnum{
+  text-align:center;font-size:13px;color:var(--ink-soft);
+  letter-spacing:1px;margin-bottom:10px;
+}
+.progress{
+  height:6px;background:#EFE5EB;border-radius:6px;overflow:hidden;
+}
+.progress .bar{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--rose),var(--gold));
+  border-radius:6px;transition:width .35s ease;
+}
+.back-row{
+  display:flex;justify-content:center;margin-top:14px;
+}
+.back-btn{
+  background:none;border:none;color:var(--ink-soft);
+  font-size:13px;cursor:pointer;padding:8px 14px;
+}
+.back-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* ===== 加载页 ===== */
+.loading-box{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+}
+.loading-box .circle{
+  width:80px;height:80px;border-radius:50%;
+  border:3px solid rgba(176,124,158,.2);
+  border-top-color:var(--rose);
+  animation:spin 1s linear infinite;
+  margin-bottom:24px;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-box p{color:var(--ink-soft);font-size:14px;}
+.loading-box .tip{margin-top:10px;font-size:12px;color:#A89BA0;}
+
+/* ===== 结果页 ===== */
+.result-card{
+  background:var(--card);border-radius:24px;
+  padding:30px 22px;box-shadow:var(--shadow);
+}
+.result-badge{
+  display:inline-block;font-size:11px;letter-spacing:3px;
+  color:var(--rose-deep);border:1px solid rgba(176,124,158,.4);
+  padding:4px 12px;border-radius:999px;margin-bottom:14px;
+}
+.result-name{
+  font-family:'Noto Serif SC',serif;font-size:30px;font-weight:900;
+  line-height:1.25;letter-spacing:1px;
+}
+.result-slogan{
+  margin-top:10px;font-size:14px;color:var(--ink-soft);
+  font-style:italic;
+}
+.result-divider{
+  height:1px;background:var(--line);margin:22px 0;
+}
+.section-title{
+  font-family:'Noto Serif SC',serif;font-size:16px;font-weight:700;
+  margin-bottom:12px;color:var(--ink);
+  display:flex;align-items:center;gap:8px;
+}
+.section-title::before{
+  content:'';width:4px;height:14px;background:var(--rose);border-radius:2px;
+}
+#radar{width:100%;height:300px;margin:0 auto;}
+.dim-list{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.dim-row{font-size:14px;}
+.dim-row .dim-label{display:flex;justify-content:space-between;margin-bottom:4px;color:var(--ink-soft);}
+.dim-row .dim-track{height:5px;background:#F0E6EC;border-radius:4px;overflow:hidden;}
+.dim-row .dim-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--gold));border-radius:4px;}
+.result-block{margin-top:22px;font-size:15px;line-height:1.8;color:#4A4050;}
+.result-block p{margin-bottom:8px;}
+.result-block .label{
+  display:inline-block;font-size:12px;color:var(--rose-deep);
+  background:#F6ECF2;padding:2px 8px;border-radius:6px;margin-right:6px;
+}
+.tip-box{
+  margin-top:22px;padding:16px;border-radius:14px;
+  background:linear-gradient(135deg,#FBF2F6,#F7F0E2);
+  font-size:15px;line-height:1.7;color:var(--ink);
+}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;}
+.match-cell{padding:12px;border-radius:12px;background:#FBF7F9;font-size:13px;line-height:1.5;}
+.match-cell b{display:block;margin-bottom:4px;color:var(--rose-deep);font-size:12px;letter-spacing:1px;}
+.share-text{
+  margin-top:22px;padding:16px;border-radius:14px;
+  background:#2B2430;color:#F6F1EC;font-size:13px;line-height:1.8;
+}
+.share-text b{color:var(--gold);}
+.action-row{display:flex;gap:10px;margin-top:20px;}
+.action-row button{
+  flex:1;padding:14px;border-radius:14px;border:none;
+  font-size:14px;cursor:pointer;
+}
+.btn-copy{background:var(--ink);color:#fff;}
+.btn-save{background:linear-gradient(135deg,var(--rose-deep),var(--rose));color:#fff;}
+.btn-restart{
+  margin-top:12px;width:100%;padding:13px;border-radius:14px;
+  background:transparent;border:1px solid var(--line);
+  color:var(--ink-soft);font-size:13px;cursor:pointer;
+}
+.ref-note{
+  margin-top:18px;font-size:11px;color:#A89BA0;line-height:1.6;text-align:center;
+}
+.toast{
+  position:fixed;left:50%;bottom:60px;transform:translateX(-50%) translateY(20px);
+  background:rgba(43,36,48,.92);color:#fff;padding:10px 20px;
+  border-radius:999px;font-size:13px;opacity:0;pointer-events:none;
+  transition:all .3s ease;z-index:99;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+@media (min-width:500px){
+  body{padding:20px 0;}
+}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- ========== 首页 ========== -->
+  <section id="view-home" class="view active">
+    <div class="card-head">
+      <div class="brand">原生家庭性格印记评估</div>
+      <div class="sub">看见成长的痕迹，拥抱完整的自己</div>
+      <div class="divider"></div>
+    </div>
+    <div class="hero">
+      <div class="ornament">❀</div>
+      <h2 class="serif">那个<br>长大的<em>小孩</em><br>现在怎么样了</h2>
+      <p class="lead">25 道题，照见童年如何悄悄写下了你今天的性格。没有对错，只有"啊，这就是我"。</p>
+      <div class="meta">
+        <span>25 题</span><span>6 大人格原型</span><span>10 维雷达</span>
+      </div>
+      <button class="btn-primary" onclick="startQuiz()">开始测试</button>
+      <p class="disclaimer">本测试为趣味心理探索，不构成任何专业诊断。<br>如果此刻你正经历难过，请记得你值得被好好对待。</p>
+    </div>
+  </section>
+
+  <!-- ========== 答题页 ========== -->
+  <section id="view-quiz" class="view">
+    <div class="card-head">
+      <div class="brand">原生家庭性格印记评估</div>
+      <div class="sub">看见成长的痕迹，拥抱完整的自己</div>
+      <div class="divider"></div>
+    </div>
+    <div class="quiz-card">
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="optBox"></div>
+      <div class="quiz-footer">
+        <div class="qnum" id="qNum"></div>
+        <div class="progress"><div class="bar" id="bar"></div></div>
+        <div class="back-row">
+          <button class="back-btn" id="backBtn" onclick="prevQ()">← 返回上一题</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 加载页 ========== -->
+  <section id="view-loading" class="view">
+    <div class="loading-box">
+      <div class="circle"></div>
+      <p>正在替你翻找心里的那个小孩…</p>
+      <p class="tip">这一页需要几秒钟，正在生成你的专属人格报告</p>
+    </div>
+  </section>
+
+  <!-- ========== 结果页 ========== -->
+  <section id="view-result" class="view">
+    <div class="card-head">
+      <div class="brand">原生家庭性格印记评估</div>
+      <div class="sub">看见成长的痕迹，拥抱完整的自己</div>
+      <div class="divider"></div>
+    </div>
+    <div class="result-card" id="resultCard">
+      <div class="result-badge" id="rBadge">你的人格类型</div>
+      <div class="result-name serif" id="rName"></div>
+      <div class="result-slogan" id="rSlogan"></div>
+      <div class="result-divider"></div>
+
+      <div class="section-title">十维人格雷达</div>
+      <div id="radar"></div>
+
+      <div class="section-title">维度得分明细</div>
+      <div class="dim-list" id="dimList"></div>
+
+      <div class="section-title">核心特质</div>
+      <div class="result-block" id="rTraits"></div>
+
+      <div class="section-title">说中你了吗</div>
+      <div class="result-block" id="rPain"></div>
+
+      <div class="section-title">它是怎么长出来的</div>
+      <div class="result-block" id="rCause"></div>
+
+      <div class="tip-box" id="rTip"></div>
+
+      <div class="section-title">你的性格天赋</div>
+      <div class="result-block" id="rGift"></div>
+
+      <div class="section-title">社交里要小心的地方</div>
+      <div class="result-block" id="rWeak"></div>
+
+      <div class="section-title">谁适合你 / 谁要躲远</div>
+      <div class="match-grid">
+        <div class="match-cell"><b>适配人格</b><span id="rMatch"></span></div>
+        <div class="match-cell"><b>避雷人格</b><span id="rAvoid"></span></div>
+      </div>
+
+      <div class="section-title">深度解读</div>
+      <div class="result-block" id="rDeep"></div>
+
+      <div class="share-text" id="rShare"></div>
+
+      <div class="action-row">
+        <button class="btn-copy" onclick="copyResult()">一键复制结果</button>
+        <button class="btn-save" onclick="savePNG()">保存成图片</button>
+      </div>
+      <button class="btn-restart" onclick="restart()">重新测一次</button>
+
+      <p class="ref-note">本测试基于依恋理论、内在家庭系统(IFS)、讨好型行为模式等大众心理学框架改编，仅供自我探索与娱乐，不替代专业心理咨询。</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===== 占位：后续分批写入 ===== */
+/* ===== 题目数据 ===== */
+/* 维度: v=自我否定  e=情绪失控  b=边界模糊  a=依恋焦虑  d=决策依赖  c=内在批判 */
+const QUESTIONS = [
+ { q:"被人当众夸奖时，你心里真实的声音是？",
+   opts:[
+    {t:"「他是不是根本没看清真实的我」", s:{v:2}},
+    {t:"表面笑着道谢，心里却在紧张下次别露馅", s:{c:1,v:1}},
+    {t:"立刻回夸对方，生怕对方觉得我傲慢", s:{b:2}},
+    {t:"大方接住：「对吧，我也觉得」", s:{}}
+   ]},
+ { q:"在意的人三个小时没回消息，你会？",
+   opts:[
+    {t:"反复打开对话框，脑补一百种他不爱我的理由", s:{a:2}},
+    {t:"告诉自己别想了，但手还是忍不住刷", s:{a:1,e:1}},
+    {t:"索性也不回，谁怕谁", s:{}},
+    {t:"该干嘛干嘛，他忙完会找我", s:{}}
+   ]},
+ { q:"同事把自己的活推给你，你手上已经堆成山了，你会？",
+   opts:[
+    {t:"默默接过来，心里骂自己为什么不会拒绝", s:{b:2,c:1}},
+    {t:"嘴上说「好吧」，但一整天心情都很糟", s:{b:1,e:1}},
+    {t:"直接说「我今天真的做不完」", s:{}},
+    {t:"接过来，但暗地里记仇", s:{b:1,c:1}}
+   ]},
+ { q:"要做一个稍大的决定（换工作、搬家、分手），你通常？",
+   opts:[
+    {t:"列一堆利弊，问五六个人，最后还是纠结", s:{d:2}},
+    {t:"先拖着，拖到不能再拖再说", s:{d:1,e:1}},
+    {t:"凭直觉拍板，错了再改", s:{}},
+    {t:"先问爸妈/最亲近的人怎么看", s:{d:2}}
+   ]},
+ { q:"发了一条朋友圈，半小时只有 3 个赞，你会？",
+   opts:[
+    {t:"偷偷删掉，觉得自己发的东西很无聊", s:{c:2,v:1}},
+    {t:"假装不在意，但反复点进去看", s:{c:1,e:1}},
+    {t:"无所谓，朋友圈本来就这样", s:{}},
+    {t:"开始回想是不是哪句话说错了", s:{c:2,b:1}}
+   ]},
+ { q:"小时候考了 95 分回家，父母最可能说的是？",
+   opts:[
+    {t:"「那 5 分怎么丢的？」", s:{v:2,c:2}},
+    {t:"「不错，但隔壁小明考了 100」", s:{v:2,c:1}},
+    {t:"「真棒，想要什么奖励？」", s:{}},
+    {t:"「别骄傲，下次保持」", s:{c:1}}
+   ]},
+ { q:"不小心说错一句话，事后你通常会？",
+   opts:[
+    {t:"在脑子里反复回放，越想越想找个地缝钻进去", s:{c:2,e:1}},
+    {t:"骂自己十分钟，然后翻篇", s:{c:1}},
+    {t:"谁还没说错过话，忘了", s:{}},
+    {t:"担心对方记仇，纠结要不要去解释", s:{b:1,a:1}}
+   ]},
+ { q:"和恋人吵完架，你更常见的状态是？",
+   opts:[
+    {t:"疯狂翻聊天记录，想「他果然不爱我了」", s:{a:2,c:1}},
+    {t:"冷战，等对方先来哄", s:{a:1,e:1}},
+    {t:"把自己彻底封闭起来，谁也不想理", s:{a:2,e:1}},
+    {t:"主动找对方把话说开", s:{}}
+   ]},
+ { q:"朋友约你聚会，但你那天其实很累，你会？",
+   opts:[
+    {t:"硬着头皮去，怕拒绝了对方会不高兴", s:{b:2}},
+    {t:"说「好呀」，去了之后全程想回家", s:{b:1,e:1}},
+    {t:"直接说「今天太累，下次吧」", s:{}},
+    {t:"纠结半小时，最后还是去了", s:{d:1,b:1}}
+   ]},
+ { q:"你脑子里那个常驻的声音，最常对你说哪句话？",
+   opts:[
+    {t:"「你看，我就说你不行吧」", s:{c:2,v:1}},
+    {t:"「这点事都做不好，你还能干嘛」", s:{c:2}},
+    {t:"「没关系，下次注意就好」", s:{}},
+    {t:"「别人都看着呢，别丢人」", s:{c:1,b:1}}
+   ]},
+ { q:"一个超预期的好机会摆在面前（升职、表白、优质项目），你的第一反应？",
+   opts:[
+    {t:"「我肯定不行，别搞砸了」", s:{v:2,d:1}},
+    {t:"嘴上说谢谢，心里直发慌", s:{v:1,e:1}},
+    {t:"先接下来，边做边学", s:{}},
+    {t:"第一时间想找别人确认「我配吗」", s:{v:1,d:1}}
+   ]},
+ { q:"你情绪上头的时候，通常是哪种？",
+   opts:[
+    {t:"一点就炸，话说得特别狠，事后又后悔", s:{e:2,c:1}},
+    {t:"表面风平浪静，心里已经翻江倒海", s:{e:2,c:1}},
+    {t:"能清楚说出「我现在很生气」", s:{}},
+    {t:"直接麻木，感觉不到自己在生气", s:{e:2}}
+   ]},
+ { q:"别人突然对你特别好，你会？",
+   opts:[
+    {t:"不安，总想着要怎么还回去，怕欠人情", s:{v:2,b:1}},
+    {t:"怀疑对方是不是有什么目的", s:{v:1,a:1}},
+    {t:"大方接受，也会对等回报", s:{}},
+    {t:"受宠若惊，觉得自己何德何能", s:{v:2}}
+   ]},
+ { q:"在亲密关系里，你更接近哪种状态？",
+   opts:[
+    {t:"总怕对方走，拼命证明自己值得被爱", s:{a:2,b:1}},
+    {t:"靠得越近越想逃，觉得单身更安全", s:{a:2,e:1}},
+    {t:"能亲密也能独处，比较松弛", s:{}},
+    {t:"反复试探对方底线，直到把对方逼走", s:{a:2,e:1}}
+   ]},
+ { q:"小时候摔倒或者哭了，父母的第一反应通常是？",
+   opts:[
+    {t:"「这点小事哭什么，不许哭」", s:{e:2,c:1}},
+    {t:"「你怎么这么不小心」", s:{c:1,v:1}},
+    {t:"「疼不疼？来抱抱」", s:{}},
+    {t:"「再哭我就不要你了」", s:{a:2,e:1}}
+   ]},
+ { q:"做了个决定结果不顺，你会？",
+   opts:[
+    {t:"在心里把自己骂几百遍，很久走不出来", s:{d:2,c:2}},
+    {t:"怪当时给我建议的那个人", s:{d:1}},
+    {t:"复盘一下，下次调整", s:{}},
+    {t:"再也不敢自己做决定了", s:{d:2,v:1}}
+   ]},
+ { q:"一群人聚会聊天时，你通常是？",
+   opts:[
+    {t:"那个一直在察言观色、照顾每个人情绪的人", s:{b:2,e:1}},
+    {t:"缩在角落，等别人主动来跟我说话", s:{b:1,a:1}},
+    {t:"想聊就聊，不想聊就安静待着", s:{}},
+    {t:"怕空气突然安静，总是主动找话题救场", s:{b:2,c:1}}
+   ]},
+ { q:"关于「被爱」这件事，你的潜意识是？",
+   opts:[
+    {t:"我必须足够好，才配被爱", s:{v:2,b:1}},
+    {t:"别人迟早会离开，不如早做准备", s:{a:2,v:1}},
+    {t:"爱就是爱，不需要理由", s:{}},
+    {t:"被爱是一种负担，我不想麻烦任何人", s:{b:1,e:1}}
+   ]},
+ { q:"工作里出了个小纰漏，你的第一反应是？",
+   opts:[
+    {t:"「完了，所有人都在看我笑话」", s:{c:2,v:1}},
+    {t:"立刻想怎么补救，而不是先自责", s:{}},
+    {t:"担心领导对我印象变差，反复回想细节", s:{c:1,b:1}},
+    {t:"脑子里开始演练怎么跟大家道歉", s:{c:1,b:1}}
+   ]},
+ { q:"下面两件事，你更怕哪一个？",
+   opts:[
+    {t:"让别人失望", s:{b:2,v:1}},
+    {t:"被别人抛弃", s:{a:2}},
+    {t:"自己做错决定", s:{d:2,c:1}},
+    {t:"情绪失控在别人面前丢脸", s:{e:2,c:1}}
+   ]},
+ { q:"你最近一次真正开心，是什么时候？",
+   opts:[
+    {t:"想不起来了，好像很久没有过", s:{e:2,c:1}},
+    {t:"上周吧，具体什么事不记得了", s:{}},
+    {t:"经常会因为一点小事开心起来", s:{}},
+    {t:"开心的时候也会立刻想「这种日子不会长久」", s:{c:1,a:1}}
+   ]},
+ { q:"关于「拒绝别人」，你的真实体验是？",
+   opts:[
+    {t:"比被拒绝还难受，宁可委屈自己", s:{b:2}},
+    {t:"能拒绝，但拒绝后会内疚很久", s:{b:1,c:1}},
+    {t:"能干脆拒绝，不内耗", s:{}},
+    {t:"不知道怎么拒绝，总是先答应再后悔", s:{b:2,d:1}}
+   ]},
+ { q:"你心里对「家」的感觉，更接近？",
+   opts:[
+    {t:"那是我必须表现好才能待下去的地方", s:{v:1,b:1,c:1}},
+    {t:"我从小就想逃离，现在也是", s:{a:1,e:1}},
+    {t:"想起家是温暖的", s:{}},
+    {t:"回一趟家比上一周班还累", s:{e:1,c:1}}
+   ]},
+ { q:"如果现在给心里那个小孩写一句话，最接近？",
+   opts:[
+    {t:"「辛苦你了，一直都在硬撑」", s:{c:1,e:1}},
+    {t:"「你就是不够好，所以大家才不爱你」", s:{v:2,c:2}},
+    {t:"「你已经做得很好了」", s:{}},
+    {t:"「别出声，没人在乎你怎么想」", s:{b:1,a:1}}
+   ]},
+ { q:"用一句话形容你和自己的关系？",
+   opts:[
+    {t:"我是自己最严厉的审判官", s:{c:2,v:1}},
+    {t:"我像个一直在讨好别人的演员", s:{b:2,v:1}},
+    {t:"我和自己相处得还行", s:{}},
+    {t:"我不太了解我自己，也不敢了解", s:{a:1,e:1}}
+   ]}
+];
+/* ===== 6 大人格原型 ===== */
+/* 维度顺序: [v, e, b, a, d, c] 0-100，代表该维度印记深度 */
+const TYPES = {
+  warm:{
+    name:"人形充电宝",
+    slogan:"把全世界都哄好了，却把自己藏在了最角落",
+    profile:[55,55,92,60,55,65],
+    traits:"你天生会察言观色，是朋友圈里那个「永远好说话」的人。别人一个眼神你就知道该接什么话，朋友聚会你永远在默默照顾所有人的情绪。别人对你的评价永远是两个字：懂事。",
+    pain:"别人一句「在吗」你就条件反射地紧张；拒绝别人比被拒绝还难受；受了委屈先反思是不是自己哪里没做好。一群人笑的时候你在笑，只有你自己知道，你笑的是别人的开心。",
+    cause:"小时候，爱是有条件的——只有乖、只有懂事、只有不添麻烦，才能换来一句表扬和一个拥抱。久而久之你学会了一件事：我不麻烦别人，别人才会喜欢我。",
+    tip:"今天试试说一次「我今天有点累」。说完你会发现，天不会塌下来，真正在意你的人反而会松一口气。",
+    gift:"共情力顶配、特别靠谱、让人有安全感、是团队里天生的粘合剂。",
+    weak:"不敢提需求、情绪容易被别人牵着走、边界被踩了还笑着说没事。",
+    match:"「壳中小蜗牛」「隐形小学霸」——一个安静不索取，一个能看见你的好。",
+    avoid:"「脑内小剧场」「纠结小浮萍」——一个过度分析你的好，一个俩都没主见。",
+    deep:"你不是没有脾气，是从小到大没人教过你怎么发出来。你把「让别人舒服」练成了肌肉记忆，却把自己活成了一个随时待命的缓冲垫。但你要知道：真正爱你的人，爱的是那个会累、会闹、会说「我不想」的你，不是那个永远在微笑的小大人。"
+  },
+  hedgehog:{
+    name:"脆皮小鞭炮",
+    slogan:"一点就炸，一碰就碎，事后又后悔到想扇自己",
+    profile:[55,92,50,75,40,70],
+    traits:"你的情绪像坐过山车——上一秒还好好的，下一秒就被某个瞬间点燃。发完火又立刻陷入深深的自责，躲在被子里把自己骂到天亮。",
+    pain:"明明知道那句话不该说、那个脾气不该发，但就是控制不住；发完之后能在心里复盘一百遍；有时候又突然什么都感觉不到，像心里住进了一块石头，哭不出来也笑不出来。",
+    cause:"小时候哭被骂「矫情」、生气被说「不懂事」，你的情绪从来没有被好好接住过。于是你学会了两件事：要么用炸毛换取一点关注，要么用麻木保护自己。",
+    tip:"情绪上来的那 30 秒，先别说话，去喝一杯温水。你不需要为你的情绪道歉，你只需要为你出口的话负责。",
+    gift:"真实不装、爱恨分明、感受力极强、创作和表达欲旺盛。",
+    weak:"容易误伤身边人、情绪恢复慢、发完火又陷入新一轮自我攻击。",
+    match:"「人形充电宝」「隐形小学霸」——一个接住你的炸，一个陪你讲道理。",
+    avoid:"「脑内小剧场」「壳中小蜗牛」——一个反复回放你的脾气，一个被你炸得再也不敢出来。",
+    deep:"你的刺不是用来攻击别人的，是小时候为了挡住那些没被接住的情绪长出来的。你不是脾气差，你只是太久没有被人温柔地对待过。下次那个小刺猬又炸毛的时候，试着蹲下来跟它说：我知道你怕了，这次我陪你。"
+  },
+  invisible:{
+    name:"隐形小学霸",
+    slogan:"把事做得再漂亮，心里那句「我不配」还是挥之不去",
+    profile:[92,50,50,55,60,75],
+    traits:"外人看你优秀、自律、靠谱，只有你自己知道，你心里一直有个声音在说「你还差得远」。你不是不努力，你是不敢停下来。",
+    pain:"被夸的时候第一反应是尴尬，觉得对方只是没看到真实的你；机会摆在面前第一反应是退缩，怕搞砸了露馅；别人对你好，你第一反应是不安，怕自己还不起。",
+    cause:"小时候你听到的永远是「那 5 分怎么丢的」「你看别人家的孩子」。父母的评价被你一字一句内化进了心里，变成了今天的自我评价：我本身不够好，我必须持续优秀，才有资格被爱。",
+    tip:"试着把心里那句「我必须」换成「我选择」。你不需要用一辈子证明自己值得被爱——你生下来就值得。",
+    gift:"上进、靠谱、自我要求高、是那种把事情交给你就放心的人。",
+    weak:"不敢接受肯定、容易有「冒充者综合征」、机会来了第一反应是躲。",
+    match:"「人形充电宝」「脆皮小鞭炮」——一个直接夸你不绕弯，一个用热闹把你从自我怀疑里拽出来。",
+    avoid:"「脑内小剧场」「纠结小浮萍」——两个都觉得自己不行，两个都没主意，一起内耗。",
+    deep:"你不是真的不够好，你只是把小时候父母的那把尺子，一直揣在自己身上量自己。考 95 分的小孩听到的是「那 5 分怎么丢的」，于是你学会了：我永远只能看到自己丢掉的那 5 分。今天，试着看看那已经拿到的 95 分。"
+  },
+  shell:{
+    name:"壳中小蜗牛",
+    slogan:"想靠近又想逃，心门开了一条缝又立刻关上",
+    profile:[55,60,40,92,55,50],
+    traits:"表面独立、疏离、什么都自己扛，其实心里极度渴望被人懂，又怕真的有人走近。你不是冷漠，你只是把柔软藏得太深。",
+    pain:"关系一旦变近就想逃，怕暴露真实的自己；别人走近一步，你就后退三步；不是不需要爱，是潜意识里觉得「反正最后都会受伤，不如不要开始」。",
+    cause:"小时候你没有获得过稳定的回应——需要的时候没人在，不需要的时候又被过度控制。你学会了一件事：靠得越近，伤得越深。于是你给自己造了一个壳。",
+    tip:"壳是用来保护小时候的你的。现在的你已经长大了，可以试着开一条门缝，看看外面那个人是不是真的不会走。",
+    gift:"独立、清醒、不黏人、边界感强、擅长深度思考。",
+    weak:"容易被误解为冷漠、会错过真心对你好的人、心里的话从来不说出口。",
+    match:"「隐形小学霸」「纠结小浮萍」——一个独立不黏人，一个节奏和你一样慢。",
+    avoid:"「脆皮小鞭炮」「人形充电宝」——一个一点就炸，一个热情过头，都让你想缩回壳里。",
+    deep:"你的壳不是墙，是一层厚厚的防弹衣。小时候那个伸手要抱抱却落空的小孩，现在学会了自己抱自己。但你要知道：真正安全的关系，不是那个人永远不会走，而是他愿意在你后退的时候，站在原地等你。"
+  },
+  reed:{
+    name:"纠结小浮萍",
+    slogan:"大小事都想问别人，做完决定又怕选错",
+    profile:[70,50,70,65,92,65],
+    traits:"选择困难、没主见、遇事第一反应是「我该问谁」。做决定前纠结，做决定后一旦不顺，就陷入长久的自我指责。",
+    pain:"吃什么、穿什么、选哪个工作、和谁在一起，每一个决定都像在赌；问了十个人八个答案，你更纠结了；一旦结果不好，你会反复想「当初要是听他的就好了」，又想「当初要是自己决定就好了」。",
+    cause:"小时候所有事都被安排好了，做选择的权利从来不在你手里；一旦自己做了决定又出错，迎接你的是劈头盖脸的指责。于是你学会了：不做决定，就不会错。",
+    tip:"先从小事开始练——今天中午吃什么，自己定，定完不许后悔。决策权这个东西，是一点点拿回来的。",
+    gift:"考虑周全、善于倾听、决策谨慎、不容易走极端。",
+    weak:"显得没主见、容易被带节奏、关键时刻反而掉链子。",
+    match:"「隐形小学霸」「脆皮小鞭炮」——一个果断给方向，一个直接拍板不纠结。",
+    avoid:"「脑内小剧场」「人形充电宝」——一个比你还纠结，一个老好人说「随便」，你更拿不定主意。",
+    deep:"你不是没有想法，是你的想法从小就被一次次否决掉了。那个敢说「我想要」的小孩，被骂多了之后，就学会了闭嘴。今天，试着为自己做一个很小的决定——哪怕只是一杯奶茶的糖度。错了也没关系，那是你的人生，试错的资格也是你的。"
+  },
+  theater:{
+    name:"脑内小剧场",
+    slogan:"脑子里永远在上演一场批评自己的独角戏",
+    profile:[75,75,50,55,55,92],
+    traits:"事情还没开始就先想「我肯定搞砸」；说错一句话能在心里复盘三天；永远拿自己的短处和别人的长处比。你不是不努力，你是被自己拖住了。",
+    pain:"别人一个眼神你就开始反省是不是自己哪里错了；晚上躺在床上脑子像开了闸的水，一遍遍重播白天的尴尬瞬间；你不是不想放过自己，是脑子里那个声音从来不停。",
+    cause:"你把小时候父母挑剔、指责的声音，原封不动地搬进了自己的脑子里。现在父母不在身边，那个「内在批评家」却代替他们，24 小时值班。",
+    tip:"下次那个声音又出来的时候，试着对它说一句：收到，但这次我想自己来。它不是你，它只是小时候住进来的一个房客。",
+    gift:"极度自省、对细节敏锐、艺术感受力强、能写出很戳人的句子。",
+    weak:"容易自我消耗、行动力被内耗拖垮、经常焦虑到睡不着。",
+    match:"「脆皮小鞭炮」「壳中小蜗牛」——一个有话直说不猜心，一个安安静静不逼你。",
+    avoid:"「人形充电宝」「纠结小浮萍」——一个过度热情让你不安，一个俩人一起反复复盘到天亮。",
+    deep:"那个脑子里的声音，不是真实的你，是小时候那个总被挑剔的你，把父母的话当成了全世界的真理。你不需要消灭它，你只需要慢慢学会：它说它的，你过你的。今天，试着在心里给那个声音倒杯茶，告诉它：辛苦了，这次我来。"
+  }
+};
+const TYPE_ORDER = ["warm","hedgehog","invisible","shell","reed","theater"];
+const TYPE_BADGE = {
+  warm:"类型 01 · 讨好向", hedgehog:"类型 02 · 情绪向", invisible:"类型 03 · 自我否定向",
+  shell:"类型 04 · 回避向", reed:"类型 05 · 决策向", theater:"类型 06 · 内耗向"
+};
+/* ===== 全局状态 ===== */
+let state = { current:0, answers:[] };
+let radarChart = null;
+
+function resetState(){
+  state = { current:0, answers:[] };
+  if (radarChart){
+    try{ radarChart.dispose(); }catch(e){}
+    radarChart = null;
+  }
+  // 清空 DOM 残留
+  document.getElementById('qText').textContent = '';
+  document.getElementById('optBox').innerHTML = '';
+  document.getElementById('rShare').innerHTML = '';
+  document.getElementById('dimList').innerHTML = '';
+  var r = document.getElementById('radar');
+  if (r){ r.innerHTML = ''; }
+}
+
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ===== 首页 → 答题 ===== */
+function startQuiz(){
+  resetState();
+  showView('view-quiz');
+  renderQ();
+}
+
+/* ===== 渲染题目 ===== */
+function renderQ(){
+  var i = state.current;
+  var q = QUESTIONS[i];
+  document.getElementById('qText').textContent = q.q;
+  var box = document.getElementById('optBox');
+  box.innerHTML = '';
+  var tags = ['A','B','C','D'];
+  q.opts.forEach(function(opt, idx){
+    var div = document.createElement('div');
+    div.className = 'opt';
+    div.innerHTML = '<span class="tag">'+tags[idx]+'</span>'+opt.t;
+    div.onclick = function(){ pickOption(idx); };
+    box.appendChild(div);
+  });
+  document.getElementById('qNum').textContent = '第 '+(i+1)+' / '+QUESTIONS.length+' 题';
+  document.getElementById('bar').style.width = ((i)/QUESTIONS.length*100)+'%';
+  document.getElementById('backBtn').disabled = (i===0);
+}
+
+function pickOption(idx){
+  var q = QUESTIONS[state.current];
+  state.answers[state.current] = q.opts[idx].s;
+  if (state.current < QUESTIONS.length-1){
+    state.current++;
+    renderQ();
+  } else {
+    document.getElementById('bar').style.width = '100%';
+    showView('view-loading');
+    setTimeout(showResult, 1600);
+  }
+}
+
+function prevQ(){
+  if (state.current > 0){
+    state.current--;
+    renderQ();
+  }
+}
+
+/* ===== 计分 ===== */
+function calcScores(){
+  var dims = ['v','e','b','a','d','c'];
+  var raw = {v:0,e:0,b:0,a:0,d:0,c:0};
+  var maxScore = {v:0,e:0,b:0,a:0,d:0,c:0};
+  QUESTIONS.forEach(function(q, qi){
+    var chosen = state.answers[qi] || {};
+    dims.forEach(function(d){ raw[d] += (chosen[d]||0); });
+    // 计算本题每维度最大权重
+    var thisMax = {v:0,e:0,b:0,a:0,d:0,c:0};
+    q.opts.forEach(function(o){
+      dims.forEach(function(d){
+        if ((o.s[d]||0) > thisMax[d]) thisMax[d] = o.s[d]||0;
+      });
+    });
+    dims.forEach(function(d){ maxScore[d] += thisMax[d]; });
+  });
+  var score = {};
+  dims.forEach(function(d){
+    score[d] = maxScore[d]===0 ? 0 : Math.round(raw[d]/maxScore[d]*100);
+  });
+  return score;
+}
+
+function nearestType(score){
+  var v = [score.v, score.e, score.b, score.a, score.d, score.c];
+  var best = null, bestDist = Infinity;
+  TYPE_ORDER.forEach(function(key){
+    var p = TYPES[key].profile;
+    var dist = 0;
+    for (var i=0;i<6;i++){ dist += Math.pow(v[i]-p[i],2); }
+    if (dist < bestDist){ bestDist = dist; best = key; }
+  });
+  return best;
+}
+
+/* ===== 结果页 ===== */
+function showResult(){
+  try{
+    var s = calcScores();
+    var typeKey = nearestType(s);
+    var T = TYPES[typeKey];
+
+    document.getElementById('rBadge').textContent = TYPE_BADGE[typeKey];
+    document.getElementById('rName').textContent = T.name;
+    document.getElementById('rSlogan').textContent = '「'+T.slogan+'」';
+    document.getElementById('rTraits').innerHTML = '<p>'+T.traits+'</p>';
+    document.getElementById('rPain').innerHTML = '<p>'+T.pain+'</p>';
+    document.getElementById('rCause').innerHTML = '<p>'+T.cause+'</p>';
+    document.getElementById('rTip').innerHTML = '<b style="color:var(--rose-deep)">给你的一点点小松弛感：</b><br>'+T.tip;
+    document.getElementById('rGift').innerHTML = '<p>'+T.gift+'</p>';
+    document.getElementById('rWeak').innerHTML = '<p>'+T.weak+'</p>';
+    document.getElementById('rMatch').textContent = T.match;
+    document.getElementById('rAvoid').textContent = T.avoid;
+    document.getElementById('rDeep').innerHTML = '<p>'+T.deep+'</p>';
+
+    // 10 维雷达数据
+    var radarDims = [
+      {name:'自我否定', value:s.v},
+      {name:'情绪失控', value:s.e},
+      {name:'边界模糊', value:s.b},
+      {name:'依恋焦虑', value:s.a},
+      {name:'决策依赖', value:s.d},
+      {name:'内在批判', value:s.c},
+      {name:'共情敏锐', value:Math.min(100, Math.round(s.b*0.6 + s.a*0.4 + 15))},
+      {name:'情绪恢复', value:Math.round(100 - s.e*0.7)},
+      {name:'独处能量', value:Math.min(100, Math.round(s.a*0.5 + (100-s.e)*0.3 + 10))},
+      {name:'讨好倾向', value:Math.min(100, Math.round(s.b*0.7 + s.v*0.3))}
+    ];
+
+    // 维度明细
+    var dimLabels = {v:'自我否定', e:'情绪失控', b:'边界模糊', a:'依恋焦虑', d:'决策依赖', c:'内在批判'};
+    var dl = document.getElementById('dimList');
+    dl.innerHTML = '';
+    ['v','e','b','a','d','c'].forEach(function(k){
+      var row = document.createElement('div');
+      row.className = 'dim-row';
+      row.innerHTML = '<div class="dim-label"><span>'+dimLabels[k]+'</span><span>'+s[k]+' 分</span></div>'+
+        '<div class="dim-track"><div class="dim-fill" style="width:'+s[k]+'%"></div></div>';
+      dl.appendChild(row);
+    });
+
+    // 分享文案
+    document.getElementById('rShare').innerHTML =
+      '<b>我的原生家庭人格印记是「'+T.name+'」</b><br>'+
+      T.slogan+'<br>'+
+      '十维雷达、性格天赋、避雷人格都在报告里了。<br>'+
+      '你也来测测，看看你的童年藏着哪个小孩？';
+
+    showView('view-result');
+    renderRadar(radarDims);
+  }catch(err){
+    console.error('结果渲染失败:', err);
+    // 兜底：即使出错也切到结果页，文字内容已填充
+    showView('view-result');
+    var r = document.getElementById('radar');
+    if (r) r.innerHTML = '<p style="text-align:center;color:#999;font-size:13px;padding:40px 0">雷达图加载异常，不影响你的人格解读～</p>';
+  }
+}
+
+function renderRadar(dims){
+  try{
+    if (typeof echarts === 'undefined') throw new Error('echarts not loaded');
+    var el = document.getElementById('radar');
+    if (!el) return;
+    if (radarChart){
+      try{ radarChart.dispose(); }catch(e){}
+      radarChart = null;
+    }
+    radarChart = echarts.init(el);
+    var indicator = dims.map(function(d){ return {name:d.name, max:100}; });
+    var values = dims.map(function(d){ return d.value; });
+    radarChart.setOption({
+      radar:{
+        indicator: indicator,
+        radius: '65%',
+        center: ['50%','52%'],
+        axisName:{ color:'#6B5F6E', fontSize:11 },
+        splitLine:{ lineStyle:{ color:'#E8DFE3' } },
+        splitArea:{ areaStyle:{ color:['rgba(255,255,255,0.6)','rgba(246,236,242,0.4)'] } },
+        axisLine:{ lineStyle:{ color:'#E8DFE3' } }
+      },
+      series:[{
+        type:'radar',
+        data:[{
+          value: values,
+          name:'我的人格',
+          areaStyle:{ color:'rgba(176,124,158,0.35)' },
+          lineStyle:{ color:'#B07C9E', width:2 },
+          itemStyle:{ color:'#8E5A7E' }
+        }]
+      }]
+    });
+    setTimeout(function(){ try{ radarChart && radarChart.resize(); }catch(e){} }, 200);
+  }catch(err){
+    console.warn('雷达图渲染失败，已降级显示文字结果:', err);
+    var el = document.getElementById('radar');
+    if (el) el.innerHTML = '<p style="text-align:center;color:#999;font-size:13px;padding:40px 0">雷达图暂时加载不出来，但你的文字解读完全正常～</p>';
+  }
+}
+
+/* ===== 复制 / 保存 PNG ===== */
+function copyResult(){
+  var T = TYPES[(function(){
+    // 重新算一次类型用于分享
+    var s = calcScores();
+    return nearestType(s);
+  })()];
+  var text = '【原生家庭性格印记测试】\n我的结果是：'+T.name+'\n'+T.slogan+'\n\n'+
+    '戳心描述：'+T.pain+'\n\n给我的小提示：'+T.tip+'\n\n——你也来测测，看看你的童年藏着哪个小孩？';
+  var btn = event.target;
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){
+      toast('已复制，去粘贴分享吧');
+    }).catch(function(){ fallbackCopy(text); });
+  } else {
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast('已复制，去粘贴分享吧'); }
+  catch(e){ toast('复制失败，请手动长按选择文字'); }
+  document.body.removeChild(ta);
+}
+function savePNG(){
+  var card = document.getElementById('resultCard');
+  toast('正在生成图片，请稍候…');
+  setTimeout(function(){
+    try{
+      if (typeof html2canvas === 'undefined') throw new Error('html2canvas not loaded');
+      html2canvas(card, { backgroundColor:'#F6F1EC', scale:2, useCORS:true }).then(function(canvas){
+        var link = document.createElement('a');
+        link.download = '原生家庭性格印记评估.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        toast('图片已保存');
+      }).catch(function(){
+        toast('保存失败，可截图分享');
+      });
+    }catch(e){
+      toast('保存失败，可直接手机截图分享');
+    }
+  }, 100);
+}
+
+/* ===== 重启 ===== */
+function restart(){
+  resetState();
+  showView('view-home');
+  window.scrollTo(0,0);
+}
+
+/* ===== Toast ===== */
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 2000);
+}
+
+/* 窗口大小变化时重绘雷达 */
+window.addEventListener('resize', function(){
+  try{ radarChart && radarChart.resize(); }catch(e){}
+});
+</script>
+</body>
+</html>
